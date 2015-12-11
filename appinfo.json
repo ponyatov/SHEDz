@@ -4,16 +4,23 @@
         ""
     ],
     "companyName": "dponyatov@gmail.com",
-    "longName": "SHED",
+    "longName": "SHEDuler",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/shed.png",
+                "menuIcon": true,
+                "name": "LOGO",
+                "type": "png-trans"
+            }
+        ]
     },
     "sdkVersion": "2",
     "shortName": "SHED",
     "uuid": "0dcd8898-fd9c-4c6f-991c-5df005b86bf2",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "0.1",
     "watchapp": {
         "watchface": false
     }
