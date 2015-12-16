@@ -1,42 +1,44 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// #define DBG
+/////////////////////////////////////////////////////////////////////////////////////////////////
+#define USER_TASKS
+/*/
+  ,{ .name="user1" }\
+  ,{ .name="user2" }\
+  ,{ .name="user3" }\
+  ,{ .name="user4" }\
+  ,{ .name="userN" }
+/*/
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 #include <pebble.h>
 #include "main.h"
 
-#define SCR_W 144
-#define SCR_H 168
-#define SCR_LINES 8
-#define TXT_H SCR_H/SCR_LINES
-
-#define FONT_DATE FONT_KEY_GOTHIC_18_BOLD
-#define FONT_TASK FONT_KEY_GOTHIC_18
-#define FONT_SEL FONT_KEY_GOTHIC_18_BOLD
-
-#define BACK_COLOR GColorBlack
-#define DATE_TEXT_COLOR GColorWhite
-#define DATE_BACK_COLOR GColorBlack
-#define TASK_TEXT_COLOR GColorWhite
-#define TASK_BACK_COLOR GColorBlack
-
-#define ACTIVE_TEXT_COLOR GColorBlack
-#define ACTIVE_BACK_COLOR GColorWhite
-
-char txtDateTime[] = "   00 Mmm Ddd MM:SS ";
-#define TM_FORMAT "   %d %b %a %M:%S "
+#ifdef DBG
+  char txtDateTime[] = " 00 Mmm Ddd HH:MM:SS";
+  #define TM_FORMAT " %d %b %a %H:%M:%S"
+#else
+  char txtDateTime[] = "   00 Mmm Ddd HH:MM";
+  #define TM_FORMAT "   %d %b %a %H:%M"
+#endif
 #define TSZ sizeof(txtDateTime)
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 struct { int tick; char name[TSZ]; TextLayer *tl; char ts[TSZ]; } TaskPool [] = {
-  { .name = "SHED" }, { .name = "bI script" },
-  { .name = "tea" },
-  { .name = "CNC" }
+  { .name = "SHED" }, { .name = "tea" }, { .name = "bI script" }, { .name = "CNC" }
+  USER_TASKS
 };
 #define SELECTED 2
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 int szTaskPool = sizeof(TaskPool)/sizeof(TaskPool[0]);
-unsigned int prev_active=0,active=0;
-unsigned int selected=SELECTED,prev_selected=SELECTED-1;
+int prev_active=0,active=0;
+int selected=SELECTED,prev_selected=SELECTED-1;
 
 TextLayer *tlDate;
 
 void redraw() {
-  for (int i=0;i<szTaskPool;i++) {
+  for (int i=0;i<min(szTaskPool,SCR_LINES);i++) {
     snprintf(TaskPool[i].ts,TSZ," %i %s",TaskPool[i].tick,TaskPool[i].name);
     text_layer_set_text(TaskPool[i].tl, TaskPool[i].ts);
   }
@@ -72,13 +74,13 @@ void upd_colors() {
 
 void click_UP(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
-  selected--; if (selected<1) selected = sizeof(szTaskPool);
+  selected--; if (selected<1) selected = szTaskPool;
   upd_colors();
 }
 
 void click_DOWN(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
-  selected++; if (selected>sizeof(szTaskPool)) selected = 1;
+  selected++; if (selected>szTaskPool) selected = 1;
   upd_colors();
 }
 
@@ -116,7 +118,11 @@ int main(void) {
   }
   upd_colors();
   // setup timers
-  tick_timer_service_subscribe(SECOND_UNIT, &second_tick);
+  #ifdef DBG
+    tick_timer_service_subscribe(SECOND_UNIT, &second_tick);
+  #else
+    tick_timer_service_subscribe(MINUTE_UNIT, &second_tick);
+  #endif
   // apprun
   app_event_loop();
   // cleanup
