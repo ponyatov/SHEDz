@@ -7,13 +7,7 @@
     "longName": "SHEDuler",
     "projectType": "native",
     "resources": {
-        "media": [
-            {
-                "file": "images/shed.png",
-                "name": "LOGO",
-                "type": "png"
-            }
-        ]
+        "media": []
     },
     "sdkVersion": "2",
     "shortName": "SHED",
