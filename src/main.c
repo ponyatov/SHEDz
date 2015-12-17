@@ -1,9 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
-// #define DBG
+//#define DBG
+#define THEME_BLACK
+//#define THEME_WHITE
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#define USER_TASKS
+#define USER_TASKS \
+  ,{ .name="CoW" }
 /*/
-  ,{ .name="user1" }\
   ,{ .name="user2" }\
   ,{ .name="user3" }\
   ,{ .name="user4" }\
@@ -15,11 +17,11 @@
 #include "main.h"
 
 #ifdef DBG
-  char txtDateTime[] = " 00 Mmm Ddd HH:MM:SS";
-  #define TM_FORMAT " %d %b %a %H:%M:%S"
+  char txtDateTime[] = "00 Mmm Ddd MM:SS";
+  #define TM_FORMAT "%d %b %a %M:%S"
 #else
-  char txtDateTime[] = "   00 Mmm Ddd HH:MM";
-  #define TM_FORMAT "   %d %b %a %H:%M"
+  char txtDateTime[] = " 00 Mns Ddd HH:MM";
+  #define TM_FORMAT " %d %b %a %H:%M"
 #endif
 #define TSZ sizeof(txtDateTime)
 

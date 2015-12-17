@@ -11,18 +11,19 @@
 
 #define SCR_W 144
 #define SCR_H 168
-#define SCR_LINES 8
+#define SCR_LINES 6
 #define TXT_H SCR_H/SCR_LINES
 
-#define FONT_DATE FONT_KEY_GOTHIC_18_BOLD
-#define FONT_TASK FONT_KEY_GOTHIC_18
-#define FONT_SEL FONT_KEY_GOTHIC_18_BOLD
+#define FONT_DATE FONT_KEY_GOTHIC_24_BOLD
+#define FONT_TASK FONT_KEY_GOTHIC_24
+#define FONT_SEL FONT_KEY_GOTHIC_28_BOLD
 
-#define BACK_COLOR GColorBlack
-#define DATE_TEXT_COLOR GColorWhite
-#define DATE_BACK_COLOR GColorBlack
-#define TASK_TEXT_COLOR GColorWhite
-#define TASK_BACK_COLOR GColorBlack
-
-#define ACTIVE_TEXT_COLOR GColorBlack
-#define ACTIVE_BACK_COLOR GColorWhite
+#ifdef THEME_BLACK
+  #define BACK_COLOR GColorBlack
+  #define DATE_TEXT_COLOR GColorBlack
+  #define DATE_BACK_COLOR GColorWhite
+  #define TASK_TEXT_COLOR GColorWhite
+  #define TASK_BACK_COLOR GColorBlack
+  #define ACTIVE_TEXT_COLOR GColorBlack
+  #define ACTIVE_BACK_COLOR GColorWhite
+#endif
