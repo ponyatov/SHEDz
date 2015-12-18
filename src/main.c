@@ -21,7 +21,7 @@
 #ifdef DBG
   #define TIMESLOT 5
 #else
-  #define TIMESLOT 5
+  #define TIMESLOT 30
 #endif
 struct { int tick; int prio; char name[TSZ]; TextLayer *tl; char ts[TSZ]; int slot;} TaskPool [] = {
   { .name = "CNC" , .prio=5 },
@@ -35,22 +35,27 @@ struct { int tick; int prio; char name[TSZ]; TextLayer *tl; char ts[TSZ]; int sl
 #define SELECTED 2
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct RECORD { int tick; int prio; char name[TSZ]; } rec;
-#define STOR_ACTIVE 0
-#define STOR_SELECTED 1
-#define STOR_TASK 2
+#define REC_VERSION 18121141
+struct RECORD { int tick; int prio; int slot; char name[TSZ]; } rec;
+#define STOR_VERSION 0
+#define STOR_ACTIVE STOR_VERSION+1
+#define STOR_SELECTED STOR_ACTIVE+1
+#define STOR_TASK STOR_SELECTED+1
 
 void save() {
+  persist_write_int(STOR_VERSION,REC_VERSION);
   persist_write_int(STOR_ACTIVE,active);
   persist_write_int(STOR_SELECTED,selected);
   for (int i=0;i<szTaskPool;i++) {
     rec.tick=TaskPool[i].tick;
     rec.prio=TaskPool[i].prio;
+    rec.slot=TaskPool[i].slot;
     strcpy(rec.name,TaskPool[i].name);
     persist_write_data(STOR_TASK+i,&rec,sizeof(rec));
   }
 }
 void load() {
+  if (persist_exists(STOR_VERSION) && persist_read_int(STOR_VERSION)==REC_VERSION) {
   if (persist_exists(STOR_ACTIVE))
     active=persist_read_int(STOR_ACTIVE);
   if (persist_exists(STOR_SELECTED))
@@ -60,8 +65,10 @@ void load() {
       persist_read_data(STOR_TASK+i,&rec,sizeof(rec));
       TaskPool[i].tick=rec.tick;
       TaskPool[i].prio=rec.prio;
+      TaskPool[i].slot=rec.slot;
       strcpy(TaskPool[i].name,rec.name);
     }
+  }
   }
 }
 
