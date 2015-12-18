@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //#define DBG
+#define REC_VERSION 18121603
+/////////////////////////////////////////////////////////////////////////////////////////////////
 #define THEME_BLACK
 //#define THEME_WHITE
 #define ACTIVE_TASKS 5
@@ -24,18 +26,19 @@
   #define TIMESLOT 30
 #endif
 struct { int tick; int prio; char name[TSZ]; TextLayer *tl; char ts[TSZ]; int slot;} TaskPool [] = {
-  { .name = "CNC" , .prio=5 },
-  { .name = "Pij2d", .prio=2 },
-  { .name = "bI script" },
-  { .name = "VREP" , .prio=3 }, 
-  { .name = "SHED" },
-  { .name = "LLVM" },
-  { .name = "Modula" },
+  { .name = "SHED" , .prio=5, .tick=1 },
+  { .name = "CNC" , .prio=2, .tick=1 },
+  { .name = "Pij2d", .prio=1, .tick=1 },
+#ifndef DBG
+  { .name = "bI script", .prio=22, .tick=1 },
+  { .name = "VREP" , .prio=11, .tick=1 }, 
+  { .name = "LLVM" , .prio=44, .tick=1 },
+  { .name = "Modula" , .prio=55, .tick=1 },
+#endif    
 };
 #define SELECTED 2
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define REC_VERSION 18121141
 struct RECORD { int tick; int prio; int slot; char name[TSZ]; } rec;
 #define STOR_VERSION 0
 #define STOR_ACTIVE STOR_VERSION+1
@@ -97,9 +100,37 @@ void redraw() {
   }
 }
 
+int formula(int idx) { return TaskPool[idx].prio * TaskPool[idx].tick; }  // magic prio calc formula
+void swap(int A, int B) {
+  // A->R
+  rec.tick = TaskPool[A].tick;
+  rec.prio = TaskPool[A].prio;
+  rec.slot = TaskPool[A].slot;
+  strcpy(rec.name,TaskPool[A].name);
+  // B->A
+  TaskPool[A].tick = TaskPool[B].tick;
+  TaskPool[A].prio = TaskPool[B].prio;
+  TaskPool[A].slot = TaskPool[B].slot;
+  strcpy(TaskPool[A].name,TaskPool[B].name);
+  // R->B
+  TaskPool[B].tick = rec.tick;
+  TaskPool[B].prio = rec.prio;
+  TaskPool[B].slot = rec.slot;
+  strcpy(TaskPool[B].name,rec.name);
+  if (selected==A) selected=B; if (selected==B) selected=A;
+  if (active==A) active=B; if (active==B) active=A;
+}
+void sort() { // sort task pool using simple time*prio order formula and bubble sort
+  for (int i=0;i<szTaskPool-1;i++)
+    if (formula(i)>formula(i+1))
+      swap(i,i+1);
+}
+
 void shedule() {
   vibes_short_pulse();
   prev_active=active; active=0;
+  sort();
+  prev_selected=selected; selected=1;
   redraw();
 }
 
@@ -133,7 +164,7 @@ void click_DOWN(ClickRecognizerRef recognizer, void *context) {
 
 void click_SELECT(ClickRecognizerRef recognizer, void *context) {
   prev_active=active;
-  if (active && active==selected)  active=0;
+  if (active && active==selected)  { shedule(); }
   else                             { active=selected; TaskPool[active-1].slot=TIMESLOT; }
   redraw();
 }
