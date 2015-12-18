@@ -11,7 +11,7 @@
 
 #define SCR_W 144
 #define SCR_H 168
-#define SCR_LINES 6
+#define SCR_LINES (ACTIVE_TASKS+1)
 #define TXT_H SCR_H/SCR_LINES
 
 #define FONT_DATE FONT_KEY_GOTHIC_24_BOLD
@@ -27,3 +27,7 @@
   #define ACTIVE_TEXT_COLOR GColorBlack
   #define ACTIVE_BACK_COLOR GColorWhite
 #endif
+
+extern int active,selected;
+extern Window *window;
+extern int szTaskPool;

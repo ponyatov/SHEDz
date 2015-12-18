@@ -2,16 +2,8 @@
 //#define DBG
 #define THEME_BLACK
 //#define THEME_WHITE
+#define ACTIVE_TASKS 5
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#define USER_TASKS \
-  ,{ .name="CoW" }
-/*/
-  ,{ .name="user2" }\
-  ,{ .name="user3" }\
-  ,{ .name="user4" }\
-  ,{ .name="userN" }
-/*/
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <pebble.h>
 #include "main.h"
@@ -27,11 +19,44 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 struct { int tick; char name[TSZ]; TextLayer *tl; char ts[TSZ]; } TaskPool [] = {
-  { .name = "SHED" }, { .name = "tea" }, { .name = "bI script" }, { .name = "CNC" }
-  USER_TASKS
+  { .name = "CNC" },
+  { .name = "Pij2d" },
+  { .name = "bI script" },
+  { .name = "VREP" }, 
+  { .name = "SHED" },
+  { .name = "LLVM" },
+  { .name = "Modula" },
 };
 #define SELECTED 2
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct RECORD { int tick; char name[TSZ]; } rec;
+#define STOR_ACTIVE 0
+#define STOR_SELECTED 1
+#define STOR_TASK 2
+
+void save() {
+  persist_write_int(STOR_ACTIVE,active);
+  persist_write_int(STOR_SELECTED,selected);
+  for (int i=0;i<szTaskPool;i++) {
+    rec.tick=TaskPool[i].tick;
+    strcpy(rec.name,TaskPool[i].name);
+    persist_write_data(STOR_TASK+i,&rec,sizeof(rec));
+  }
+}
+void load() {
+  if (persist_exists(STOR_ACTIVE))
+    active=persist_read_int(STOR_ACTIVE);
+  if (persist_exists(STOR_SELECTED))
+    selected=persist_read_int(STOR_SELECTED);
+  for (int i=0;i<szTaskPool;i++) {
+    if (persist_exists(STOR_TASK+i)) {
+      persist_read_data(STOR_TASK+i,&rec,sizeof(rec));
+      TaskPool[i].tick=rec.tick;
+      strcpy(TaskPool[i].name,rec.name);
+    }
+  }
+}
 
 int szTaskPool = sizeof(TaskPool)/sizeof(TaskPool[0]);
 int prev_active=0,active=0;
@@ -76,13 +101,13 @@ void upd_colors() {
 
 void click_UP(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
-  selected--; if (selected<1) selected = szTaskPool;
+  selected--; if (selected<1) selected = min(ACTIVE_TASKS,szTaskPool);
   upd_colors();
 }
 
 void click_DOWN(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
-  selected++; if (selected>szTaskPool) selected = 1;
+  selected++; if (selected>min(ACTIVE_TASKS,szTaskPool)) selected = 1;
   upd_colors();
 }
 
@@ -93,15 +118,28 @@ void click_SELECT(ClickRecognizerRef recognizer, void *context) {
   upd_colors();
 }
 
+void click_BACK(ClickRecognizerRef recognizer, void *context) {
+  save();
+  // cleanup
+  text_layer_destroy(tlDate);
+  for (int i=0;i<szTaskPool;i++) text_layer_destroy(TaskPool[i].tl);
+  window_destroy(window);
+  // terminate
+  window_stack_pop_all(true);
+}
+
 void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, click_UP);
   window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
+  window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
 }
 
+Window *window;
 int main(void) {
+  load();
   // main window
-  Window *window = window_create(); window_set_fullscreen(window, true);
+  window = window_create(); window_set_fullscreen(window, true);
   window_set_background_color(window,BACK_COLOR);
   window_stack_push(window, true);
   window_set_click_config_provider(window, WindowsClickConfigProvider);  
@@ -127,8 +165,4 @@ int main(void) {
   #endif
   // apprun
   app_event_loop();
-  // cleanup
-  text_layer_destroy(tlDate);
-  for (int i=0;i<szTaskPool;i++) text_layer_destroy(TaskPool[i].tl);
-  window_destroy(window);
 }
