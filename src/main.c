@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#define DBG
+//#define DBG
+#define REC_VERSION 18121603
+/////////////////////////////////////////////////////////////////////////////////////////////////
 #define THEME_BLACK
 //#define THEME_WHITE
 #define ACTIVE_TASKS 5
@@ -24,20 +26,19 @@
   #define TIMESLOT 30
 #endif
 struct { int tick; int prio; char name[TSZ]; TextLayer *tl; char ts[TSZ]; int slot;} TaskPool [] = {
-  { .name = "CNC" , .prio=2 },
-  { .name = "Pij2d", .prio=1 },
+  { .name = "SHED" , .prio=5, .tick=1 },
+  { .name = "CNC" , .prio=2, .tick=1 },
+  { .name = "Pij2d", .prio=1, .tick=1 },
 #ifndef DBG
-  { .name = "bI script", .prio=11 },
-  { .name = "VREP" , .prio=3 }, 
-  { .name = "SHED" , .prio=3 },
-  { .name = "LLVM" , .prio=111 },
-  { .name = "Modula" , .prio=111 },
+  { .name = "bI script", .prio=22, .tick=1 },
+  { .name = "VREP" , .prio=11, .tick=1 }, 
+  { .name = "LLVM" , .prio=44, .tick=1 },
+  { .name = "Modula" , .prio=55, .tick=1 },
 #endif    
 };
 #define SELECTED 2
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define REC_VERSION 18121141
 struct RECORD { int tick; int prio; int slot; char name[TSZ]; } rec;
 #define STOR_VERSION 0
 #define STOR_ACTIVE STOR_VERSION+1
@@ -163,7 +164,7 @@ void click_DOWN(ClickRecognizerRef recognizer, void *context) {
 
 void click_SELECT(ClickRecognizerRef recognizer, void *context) {
   prev_active=active;
-  if (active && active==selected)  active=0;
+  if (active && active==selected)  { shedule(); }
   else                             { active=selected; TaskPool[active-1].slot=TIMESLOT; }
   redraw();
 }
