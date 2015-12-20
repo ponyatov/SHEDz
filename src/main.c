@@ -1,42 +1,23 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////
-//#define DBG
-#define REC_VERSION 18121603
-/////////////////////////////////////////////////////////////////////////////////////////////////
-#define THEME_BLACK
-//#define THEME_WHITE
-#define ACTIVE_TASKS 5
+#define DBG
+#define REC_VERSION 12201058
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <pebble.h>
 #include "main.h"
 
-#ifdef DBG
-  char txtDateTime[] = "00 Mmm Ddd MM:SS";
-  #define TM_FORMAT "%d %b %a %M:%S"
-#else
-  char txtDateTime[] = " 00 Mns Ddd HH:MM";
-  #define TM_FORMAT " %d %b %a %H:%M"
-#endif
-#define TSZ sizeof(txtDateTime)
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef DBG
-  #define TIMESLOT 5
-#else
-  #define TIMESLOT 30
-#endif
-struct { int tick; int prio; char name[TSZ]; TextLayer *tl; char ts[TSZ]; int slot;} TaskPool [] = {
+struct TaskPoolRecord TaskPool [] = {
   { .name = "SHED" , .prio=5, .tick=1 },
   { .name = "CNC" , .prio=2, .tick=1 },
   { .name = "Pij2d", .prio=1, .tick=1 },
+  { .name = "Pays", .prio=0, .tick=1 },
 #ifndef DBG
-  { .name = "bI script", .prio=22, .tick=1 },
-  { .name = "VREP" , .prio=11, .tick=1 }, 
-  { .name = "LLVM" , .prio=44, .tick=1 },
-  { .name = "Modula" , .prio=55, .tick=1 },
+  { .name = "Machining", .prio=4, .tick=1 },
+  { .name = "bI script", .prio=6, .tick=1 },
+  { .name = "VREP" , .prio=3, .tick=1 }, 
+  { .name = "LLVM" , .prio=5, .tick=1 },
+  { .name = "Modula" , .prio=7, .tick=1 },
 #endif    
 };
-#define SELECTED 2
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct RECORD { int tick; int prio; int slot; char name[TSZ]; } rec;
@@ -58,21 +39,23 @@ void save() {
   }
 }
 void load() {
-  if (persist_exists(STOR_VERSION) && persist_read_int(STOR_VERSION)==REC_VERSION) {
-  if (persist_exists(STOR_ACTIVE))
-    active=persist_read_int(STOR_ACTIVE);
-  if (persist_exists(STOR_SELECTED))
-    selected=persist_read_int(STOR_SELECTED);
-  for (int i=0;i<szTaskPool;i++) {
-    if (persist_exists(STOR_TASK+i)) {
-      persist_read_data(STOR_TASK+i,&rec,sizeof(rec));
-      TaskPool[i].tick=rec.tick;
-      TaskPool[i].prio=rec.prio;
-      TaskPool[i].slot=rec.slot;
-      strcpy(TaskPool[i].name,rec.name);
+  if (persist_exists(STOR_VERSION) &&\
+  persist_read_int(STOR_VERSION)==REC_VERSION) {
+    if (persist_exists(STOR_ACTIVE))
+      active=persist_read_int(STOR_ACTIVE);
+    if (persist_exists(STOR_SELECTED))
+      selected=persist_read_int(STOR_SELECTED);
+    for (int i=0;i<szTaskPool;i++) {
+      if (persist_exists(STOR_TASK+i)) {
+        persist_read_data(STOR_TASK+i,&rec,sizeof(rec));
+        TaskPool[i].tick=rec.tick;
+        TaskPool[i].prio=rec.prio;
+        TaskPool[i].slot=rec.slot;
+        strcpy(TaskPool[i].name,rec.name);
+      }
     }
-  }
-  }
+  } else for (int i=0;i<szTaskPool;i++) TaskPool[i].tick=1;
+  bubblesort();
 }
 
 int szTaskPool = sizeof(TaskPool)/sizeof(TaskPool[0]);
@@ -120,16 +103,19 @@ void swap(int A, int B) {
   if (selected==A) selected=B; if (selected==B) selected=A;
   if (active==A) active=B; if (active==B) active=A;
 }
-void sort() { // sort task pool using simple time*prio order formula and bubble sort
-  for (int i=0;i<szTaskPool-1;i++)
-    if (formula(i)>formula(i+1))
-      swap(i,i+1);
+void bubblesort() { // sort task pool using simple time*prio order formula
+  bool swapped;
+  do {
+    swapped=false;
+    for (int i=0;i<szTaskPool-1;i++)
+      if (formula(i)>formula(i+1)) { swap(i,i+1); swapped=true; }
+  } while (swapped);
 }
 
 void shedule() {
   vibes_short_pulse();
   prev_active=active; active=0;
-  sort();
+  bubblesort();
   prev_selected=selected; selected=1;
   redraw();
 }
@@ -150,41 +136,12 @@ void update() {
 
 static void second_tick(struct tm* tick_time, TimeUnits units_changed) { update(); }
 
-void click_UP(ClickRecognizerRef recognizer, void *context) {
-  prev_selected=selected;
-  selected--; if (selected<1) selected = min(ACTIVE_TASKS,szTaskPool);
-  redraw();
+void activate(int i) {
+prev_active=active; active=i; TaskPool[active-1].slot=TIMESLOT; 
 }
 
-void click_DOWN(ClickRecognizerRef recognizer, void *context) {
-  prev_selected=selected;
-  selected++; if (selected>min(ACTIVE_TASKS,szTaskPool)) selected = 1;
-  redraw();
-}
-
-void click_SELECT(ClickRecognizerRef recognizer, void *context) {
-  prev_active=active;
-  if (active && active==selected)  { shedule(); }
-  else                             { active=selected; TaskPool[active-1].slot=TIMESLOT; }
-  redraw();
-}
-
-void click_BACK(ClickRecognizerRef recognizer, void *context) {
-  save();
-  // cleanup
-  text_layer_destroy(tlDate);
-  for (int i=0;i<szTaskPool;i++) text_layer_destroy(TaskPool[i].tl);
-  window_destroy(window);
-  // terminate
-  window_stack_pop_all(true);
-}
-
-void WindowsClickConfigProvider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_UP, click_UP);
-  window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
-  window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
-  window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
-}
+void decprio(int i) { if (TaskPool[i].prio) TaskPool[i].prio--; shedule(); }
+void incprio(int i) { TaskPool[i].prio++; shedule(); }
 
 Window *window;
 int main(void) {
