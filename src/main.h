@@ -43,6 +43,7 @@ extern void shedule();
 extern void activate(int);
 
 extern void incprio(int),decprio(int);
+extern void raise_task(),lower_task();
 extern void save(),load();
 
 extern TextLayer *tlDate;

@@ -38,21 +38,15 @@ void click_UP(ClickRecognizerRef recognizer, void *context) {
   redraw();
 }
 
-void hold_UP(ClickRecognizerRef recognizer, void *context) {
-  if (TaskPool[selected-1].prio>0) TaskPool[selected-1].prio--;
-  shedule();
-}
 
-void click_DOWN(ClickRecognizerRef recognizer, void *context) {
+void click_DOWN(ClickRecognizerRef recognizer, void *context) { 
   prev_selected=selected;
   selected++; if (selected>min(ACTIVE_TASKS,szTaskPool)) selected = 1;
   redraw();
 }
 
-void hold_DOWN(ClickRecognizerRef recognizer, void *context) {
-  TaskPool[selected-1].prio++;
-  shedule();
-}
+void hold_UP(ClickRecognizerRef recognizer, void *context) { raise_task(); }
+void hold_DOWN(ClickRecognizerRef recognizer, void *context) { lower_task(); }
 
 void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, click_UP);

@@ -1,5 +1,5 @@
 //#define DBG
-#define REC_VERSION 21121456
+#define REC_VERSION 21121649
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
@@ -13,7 +13,7 @@ struct TaskPoolRecord TaskPool [] = {
 #ifndef DBG
   { .name = "Android" },
   { .name = "Machining" },
-  { .name = "bI/LLVM" },
+  { .name = "bIlol" },
   { .name = "VREP" }, 
   { .name = "Modula" },
   { .name = "e@mail" }
@@ -119,6 +119,17 @@ void shedule() {
   bubblesort();
   prev_selected=selected; selected=1;
   redraw();
+}
+
+void raise_task() {
+  TaskPool[selected-1].prio -= TIMESLOT;
+  if (TaskPool[selected-1].prio<1) TaskPool[selected-1].prio=1;
+  shedule();
+}
+
+void lower_task() {
+  TaskPool[selected-1].prio += TIMESLOT;
+  shedule();
 }
 
 void update() {
