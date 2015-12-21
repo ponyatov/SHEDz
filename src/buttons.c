@@ -32,22 +32,34 @@ void click_BACK(ClickRecognizerRef recognizer, void *context) {
   window_stack_pop_all(true);
 }
 
-void WindowsClickConfigProvider(void *context) {
-  window_single_click_subscribe(BUTTON_ID_UP, click_UP);
-  window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
-  window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
-//  window_long_click_subscribe(BUTTON_ID_SELECT, 500, hold_SELECT,hold_null);
-  window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
-}
-
 void click_UP(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
   selected--; if (selected<1) selected = min(ACTIVE_TASKS,szTaskPool);
   redraw();
 }
 
+void hold_UP(ClickRecognizerRef recognizer, void *context) {
+  if (TaskPool[selected-1].prio>0) TaskPool[selected-1].prio--;
+  shedule();
+}
+
 void click_DOWN(ClickRecognizerRef recognizer, void *context) {
   prev_selected=selected;
   selected++; if (selected>min(ACTIVE_TASKS,szTaskPool)) selected = 1;
   redraw();
+}
+
+void hold_DOWN(ClickRecognizerRef recognizer, void *context) {
+  TaskPool[selected-1].prio++;
+  shedule();
+}
+
+void WindowsClickConfigProvider(void *context) {
+  window_single_click_subscribe(BUTTON_ID_UP, click_UP);
+  window_long_click_subscribe(BUTTON_ID_UP, 555, hold_UP,hold_null);
+  window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
+  window_long_click_subscribe(BUTTON_ID_DOWN, 555, hold_DOWN,hold_null);
+  window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
+//  window_long_click_subscribe(BUTTON_ID_SELECT, 500, hold_SELECT,hold_null);
+  window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
 }

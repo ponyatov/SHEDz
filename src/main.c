@@ -1,5 +1,5 @@
-#define DBG
-#define REC_VERSION 12201058
+//#define DBG
+#define REC_VERSION 21121314
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
@@ -8,13 +8,14 @@
 struct TaskPoolRecord TaskPool [] = {
   { .name = "SHED" , .prio=5, .tick=1 },
   { .name = "CNC" , .prio=2, .tick=1 },
-  { .name = "Pij2d", .prio=1, .tick=1 },
-  { .name = "Pays", .prio=0, .tick=1 },
+  { .name = "Pij2d", .prio=5, .tick=1 },
+  { .name = "Pays", .prio=5, .tick=1 },
 #ifndef DBG
-  { .name = "Machining", .prio=4, .tick=1 },
+  { .name = "Android", .prio=4, .tick=1 },
+  { .name = "Machining", .prio=5, .tick=1 },
   { .name = "bI script", .prio=6, .tick=1 },
   { .name = "VREP" , .prio=3, .tick=1 }, 
-  { .name = "LLVM" , .prio=5, .tick=1 },
+  { .name = "LLVM" , .prio=4, .tick=1 },
   { .name = "Modula" , .prio=7, .tick=1 },
 #endif    
 };
