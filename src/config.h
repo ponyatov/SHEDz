@@ -9,9 +9,9 @@
 //#define THEME_WHITE
 
 #ifdef DBG
-  #define TIMESLOT 11
+  #define TIMESLOT 5
 #else
-  #define TIMESLOT 30
+  #define TIMESLOT 15
 #endif
 #define SELECTED 2
 
