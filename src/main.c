@@ -1,5 +1,5 @@
 //#define DBG
-#define REC_VERSION 21121447
+#define REC_VERSION 21121456
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
@@ -13,10 +13,10 @@ struct TaskPoolRecord TaskPool [] = {
 #ifndef DBG
   { .name = "Android" },
   { .name = "Machining" },
-  { .name = "bI script" },
+  { .name = "bI/LLVM" },
   { .name = "VREP" }, 
-  { .name = "LLVM" },
   { .name = "Modula" },
+  { .name = "e@mail" }
 #endif    
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////
