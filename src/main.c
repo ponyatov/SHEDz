@@ -84,7 +84,7 @@ void redraw() {
   }
 }
 
-int formula(int idx) { return (TaskPool[idx].prio * TaskPool[idx].tick)/TIMESLOT; }  // magic prio calc formula
+int formula(int idx) { return (TaskPool[idx].prio * TaskPool[idx].tick); }  // magic prio calc formula
 void swap(int A, int B) {
   // A->R
   rec.tick = TaskPool[A].tick;
