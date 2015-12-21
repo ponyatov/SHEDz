@@ -1,22 +1,22 @@
 //#define DBG
-#define REC_VERSION 21121314
+#define REC_VERSION 21121447
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 struct TaskPoolRecord TaskPool [] = {
-  { .name = "SHED" , .prio=5, .tick=1 },
-  { .name = "CNC" , .prio=2, .tick=1 },
-  { .name = "Pij2d", .prio=5, .tick=1 },
-  { .name = "Pays", .prio=5, .tick=1 },
+  { .name = "SHED" },
+  { .name = "CNC" },
+  { .name = "Pij2d" },
+  { .name = "Pays" },
 #ifndef DBG
-  { .name = "Android", .prio=4, .tick=1 },
-  { .name = "Machining", .prio=5, .tick=1 },
-  { .name = "bI script", .prio=6, .tick=1 },
-  { .name = "VREP" , .prio=3, .tick=1 }, 
-  { .name = "LLVM" , .prio=4, .tick=1 },
-  { .name = "Modula" , .prio=7, .tick=1 },
+  { .name = "Android" },
+  { .name = "Machining" },
+  { .name = "bI script" },
+  { .name = "VREP" }, 
+  { .name = "LLVM" },
+  { .name = "Modula" },
 #endif    
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ void load() {
         strcpy(TaskPool[i].name,rec.name);
       }
     }
-  } else for (int i=0;i<szTaskPool;i++) TaskPool[i].tick=1;
+  } else for (int i=0;i<szTaskPool;i++) { TaskPool[i].tick=1; TaskPool[i].prio=1; }
   bubblesort();
 }
 
@@ -84,7 +84,7 @@ void redraw() {
   }
 }
 
-int formula(int idx) { return TaskPool[idx].prio * TaskPool[idx].tick; }  // magic prio calc formula
+int formula(int idx) { return (TaskPool[idx].prio * TaskPool[idx].tick)/TIMESLOT; }  // magic prio calc formula
 void swap(int A, int B) {
   // A->R
   rec.tick = TaskPool[A].tick;
