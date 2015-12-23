@@ -29,11 +29,11 @@ void click_DOWN(ClickRecognizerRef recognizer, void *context) {
   redraw();
 }
 
-void click_NULL(ClickRecognizerRef recognizer, void *context) {}
+void click_NULL(ClickRecognizerRef recognizer, void *context) { }
 
 void hold_UP(ClickRecognizerRef recognizer, void *context) { raise_task(); }
 void hold_DOWN(ClickRecognizerRef recognizer, void *context) { lower_task(); }
-//void hold_SELECT(ClickRecognizerRef recognizer, void *context) { delay_task(); }
+void hold_SELECT(ClickRecognizerRef recognizer, void *context) { delay_task(); }
 
 void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, click_UP);
@@ -41,6 +41,6 @@ void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
   window_long_click_subscribe(BUTTON_ID_DOWN, 555, hold_DOWN,click_NULL);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
-  //window_long_click_subscribe(BUTTON_ID_SELECT, 555, hold_SELECT,click_NULL);
+  window_long_click_subscribe(BUTTON_ID_SELECT, 555, hold_SELECT,click_NULL);
   window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
 }

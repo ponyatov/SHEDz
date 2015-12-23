@@ -1,5 +1,5 @@
 #define DBG
-#define REC_VERSION 23121213
+#define REC_VERSION 23121215
 #define DELAY_MINUTES 11
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,8 @@ void redraw() {
 }
 
 int formula(int idx) {  // magic prio calc formula
-  return (/*TaskPool[idx].delayed*11 +*/ TaskPool[idx].prio * TaskPool[idx].tick); 
+  int D = TaskPool[idx].delayed;
+  return (TaskPool[idx].prio) * TaskPool[idx].tick;
 }  
 void swap(int A, int B) {
   // A->R
@@ -107,8 +108,8 @@ void swap(int A, int B) {
   TaskPool[B].prio = rec.prio;
   TaskPool[B].slot = rec.slot;
   strcpy(TaskPool[B].name,rec.name);
-  if (selected==A) prev_selected=selected,selected=B;
-  if (selected==B) prev_selected=selected,selected=A;
+  if (selected==A) selected=B;//prev_selected=selected,
+  if (selected==B) selected=A;//prev_selected=selected,
   if (active==A) active=B; if (active==B) active=A;
 }
 void bubblesort() { // sort task pool using simple time*prio order formula
@@ -139,10 +140,10 @@ void lower_task() {
   shedule();
 }
 
-//void delay_task() {
-//  if (selected) TaskPool[selected-1].delayed++;
-//  //shedule();
-//}
+void delay_task() {
+  if (selected) TaskPool[selected-1].delayed+=DELAY_MINUTES;
+  shedule();
+}
 
 void update() {
   // date&time
@@ -154,6 +155,12 @@ void update() {
     TaskPool[active-1].tick++; TaskPool[active-1].slot--;
     if (!TaskPool[active-1].slot) shedule();
   }
+  // proc delayed
+  for (int i=0;i<szTaskPool;i++)
+    if (TaskPool[i].delayed) { // do block for delayed only
+      TaskPool[i].delayed--;
+      if (!TaskPool[i].delayed) shedule(); // on delay end trigger
+    }
   // redraw screen
   redraw();
 }
