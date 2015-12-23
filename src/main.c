@@ -1,5 +1,5 @@
-#define DBG
-#define REC_VERSION 23121215
+//#define DBG
+#define REC_VERSION 23121309
 #define DELAY_MINUTES 11
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,8 +89,7 @@ void redraw() {
 }
 
 int formula(int idx) {  // magic prio calc formula
-  int D = TaskPool[idx].delayed;
-  return (TaskPool[idx].prio) * TaskPool[idx].tick;
+  return TaskPool[idx].prio * TaskPool[idx].tick;// + TaskPool[idx].delayed;
 }  
 void swap(int A, int B) {
   // A->R

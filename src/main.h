@@ -58,11 +58,11 @@ extern TextLayer *tlDate;
 #define TSZ sizeof(txtDateTime)
 
 struct TaskPoolRecord {    // task record structure
+  int delayed;             // delayed task counter (minutes)
   int tick;                // works ticks count (minutes)
   int prio;                // priority 0 immediate 1 maximal
   char name[TSZ];          // name
   int slot;                // current timeslot (minutes)
-  int delayed;             // delayed task counter (minutes)
   TextLayer *tl;   // pebble text layer storage point reserved for each task  \ not swaps on tasks reshedule
   char ts[TSZ];    // pebble text buffer for displayable task text            /
 };
