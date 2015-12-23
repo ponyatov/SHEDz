@@ -1,5 +1,6 @@
-//#define DBG
-#define REC_VERSION 21121649
+#define DBG
+#define REC_VERSION 23121213
+#define DELAY_MINUTES 11
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
@@ -14,7 +15,7 @@ struct TaskPoolRecord TaskPool [] = {
   { .name = "Android" },
   { .name = "Machining" },
   { .name = "bIlol" },
-  { .name = "VREP" }, 
+  { .name = "VREP" },
   { .name = "Modula" },
   { .name = "e@mail" }
 #endif    
@@ -74,17 +75,22 @@ void redraw() {
     text_layer_set_background_color(TaskPool[active-1].tl, ACTIVE_BACK_COLOR);
     text_layer_set_text_color(TaskPool[active-1].tl, ACTIVE_TEXT_COLOR);
   }
-  if (prev_selected)
-    text_layer_set_font(TaskPool[prev_selected-1].tl, fonts_get_system_font(FONT_TASK));
-  if (selected)
-    text_layer_set_font(TaskPool[selected-1].tl, fonts_get_system_font(FONT_SEL));
   for (int i=0;i<min(szTaskPool,ACTIVE_TASKS);i++) {
-    snprintf(TaskPool[i].ts,TSZ," %i/%i %s %i",TaskPool[i].slot,TaskPool[i].tick,TaskPool[i].name,TaskPool[i].prio);
+    // mark selected
+    if (i==selected-1)
+      text_layer_set_font(TaskPool[i].tl, fonts_get_system_font(FONT_SEL));
+    else
+      text_layer_set_font(TaskPool[i].tl, fonts_get_system_font(FONT_TASK));
+    // print task info
+    snprintf(TaskPool[i].ts,TSZ," %i/%i %s %i/%i",\
+             TaskPool[i].slot,TaskPool[i].tick,TaskPool[i].name,TaskPool[i].prio,TaskPool[i].delayed);
     text_layer_set_text(TaskPool[i].tl, TaskPool[i].ts);
   }
 }
 
-int formula(int idx) { return (TaskPool[idx].prio * TaskPool[idx].tick); }  // magic prio calc formula
+int formula(int idx) {  // magic prio calc formula
+  return (/*TaskPool[idx].delayed*11 +*/ TaskPool[idx].prio * TaskPool[idx].tick); 
+}  
 void swap(int A, int B) {
   // A->R
   rec.tick = TaskPool[A].tick;
@@ -101,7 +107,8 @@ void swap(int A, int B) {
   TaskPool[B].prio = rec.prio;
   TaskPool[B].slot = rec.slot;
   strcpy(TaskPool[B].name,rec.name);
-  if (selected==A) selected=B; if (selected==B) selected=A;
+  if (selected==A) prev_selected=selected,selected=B;
+  if (selected==B) prev_selected=selected,selected=A;
   if (active==A) active=B; if (active==B) active=A;
 }
 void bubblesort() { // sort task pool using simple time*prio order formula
@@ -131,6 +138,11 @@ void lower_task() {
   TaskPool[selected-1].prio += TIMESLOT;
   shedule();
 }
+
+//void delay_task() {
+//  if (selected) TaskPool[selected-1].delayed++;
+//  //shedule();
+//}
 
 void update() {
   // date&time

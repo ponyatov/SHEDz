@@ -43,7 +43,7 @@ extern void shedule();
 extern void activate(int);
 
 extern void incprio(int),decprio(int);
-extern void raise_task(),lower_task();
+extern void raise_task(),lower_task(),delay_task();
 extern void save(),load();
 
 extern TextLayer *tlDate;
@@ -57,9 +57,15 @@ extern TextLayer *tlDate;
 #endif
 #define TSZ sizeof(txtDateTime)
 
-struct TaskPoolRecord { 
-  int tick; int prio; char name[TSZ]; int slot;
-  TextLayer *tl; char ts[TSZ]; }  ;
+struct TaskPoolRecord {    // task record structure
+  int tick;                // works ticks count (minutes)
+  int prio;                // priority 0 immediate 1 maximal
+  char name[TSZ];          // name
+  int slot;                // current timeslot (minutes)
+  int delayed;             // delayed task counter (minutes)
+  TextLayer *tl;   // pebble text layer storage point reserved for each task  \ not swaps on tasks reshedule
+  char ts[TSZ];    // pebble text buffer for displayable task text            /
+};
 
 extern struct TaskPoolRecord TaskPool [];
 

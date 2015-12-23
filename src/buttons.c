@@ -6,21 +6,6 @@ void click_SELECT(ClickRecognizerRef recognizer, void *context) {
   else                             activate(selected);
   redraw();
 }
-void hold_SELECT(ClickRecognizerRef recognizer, void *context) {
-  decprio(selected);
-  activate(selected);
-  /*
-  if (active) {
-    if (selected==active) {
-      incprio(selected);
-    }
-  } else {
-      decprio(selected);
-      activate(selected);
-  }*/
-  redraw();
-}
-void hold_null(ClickRecognizerRef recognizer, void *context) {}
 
 void click_BACK(ClickRecognizerRef recognizer, void *context) {
   save();
@@ -38,22 +23,24 @@ void click_UP(ClickRecognizerRef recognizer, void *context) {
   redraw();
 }
 
-
 void click_DOWN(ClickRecognizerRef recognizer, void *context) { 
   prev_selected=selected;
   selected++; if (selected>min(ACTIVE_TASKS,szTaskPool)) selected = 1;
   redraw();
 }
 
+void click_NULL(ClickRecognizerRef recognizer, void *context) {}
+
 void hold_UP(ClickRecognizerRef recognizer, void *context) { raise_task(); }
 void hold_DOWN(ClickRecognizerRef recognizer, void *context) { lower_task(); }
+//void hold_SELECT(ClickRecognizerRef recognizer, void *context) { delay_task(); }
 
 void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_UP, click_UP);
-  window_long_click_subscribe(BUTTON_ID_UP, 555, hold_UP,hold_null);
+  window_long_click_subscribe(BUTTON_ID_UP, 555, hold_UP,click_NULL);
   window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
-  window_long_click_subscribe(BUTTON_ID_DOWN, 555, hold_DOWN,hold_null);
+  window_long_click_subscribe(BUTTON_ID_DOWN, 555, hold_DOWN,click_NULL);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
-//  window_long_click_subscribe(BUTTON_ID_SELECT, 500, hold_SELECT,hold_null);
+  //window_long_click_subscribe(BUTTON_ID_SELECT, 555, hold_SELECT,click_NULL);
   window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
 }
