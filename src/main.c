@@ -1,24 +1,28 @@
 //#define DBG
-#define REC_VERSION 23121309
+#define REC_VERSION 25121048
 #define DELAY_MINUTES 11
+
+// #define PRIO_SHIFT TIMESLOT
+#define PRIO_SHIFT 1
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "main.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 struct TaskPoolRecord TaskPool [] = {
-  { .name = "SHED" },
   { .name = "CNC" },
-  { .name = "Pij2d" },
-  { .name = "Pays" },
-#ifndef DBG
-  { .name = "Android" },
   { .name = "Machining" },
-  { .name = "bIlol" },
+  { .name = "Android" },
   { .name = "VREP" },
-  { .name = "Modula" },
+  { .name = "bIlol" },
+//   { .name = "Pij2d" },
+//   { .name = "Pays" },
+// #ifndef DBG
+//   { .name = "Modula" },
+// #endif    
+  { .name = "SHED" },
   { .name = "e@mail" }
-#endif    
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +60,9 @@ void load() {
         strcpy(TaskPool[i].name,rec.name);
       }
     }
-  } else for (int i=0;i<szTaskPool;i++) { TaskPool[i].tick=1; TaskPool[i].prio=1; }
+  } else for (int i=0;i<szTaskPool;i++) {
+        TaskPool[i].tick=1;
+        TaskPool[i].prio=1; }
   bubblesort();
 }
 
@@ -129,13 +135,13 @@ void shedule() {
 }
 
 void raise_task() {
-  TaskPool[selected-1].prio -= TIMESLOT;
+  TaskPool[selected-1].prio -= PRIO_SHIFT;
   if (TaskPool[selected-1].prio<1) TaskPool[selected-1].prio=1;
   shedule();
 }
 
 void lower_task() {
-  TaskPool[selected-1].prio += TIMESLOT;
+  TaskPool[selected-1].prio += PRIO_SHIFT;
   shedule();
 }
 
