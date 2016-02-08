@@ -1,5 +1,5 @@
 //#define DBG
-#define REC_VERSION 25121048
+#define REC_VERSION 88021052
 #define DELAY_MINUTES 11
 
 // #define PRIO_SHIFT TIMESLOT
@@ -12,16 +12,17 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 struct TaskPoolRecord TaskPool [] = {
   { .name = "CNC" },
-  { .name = "Machining" },
-  { .name = "Android" },
-  { .name = "VREP" },
-  { .name = "bIlol" },
+  { .name = "bI" },
+  { .name = "Swarm" },
+  { .name = "HS" },
+////  { .name = "VREP" },
+//  { .name = "bIlol" },
 //   { .name = "Pij2d" },
 //   { .name = "Pays" },
 // #ifndef DBG
 //   { .name = "Modula" },
 // #endif    
-  { .name = "SHED" },
+//  { .name = "SHED" },
   { .name = "e@mail" }
 };
 /////////////////////////////////////////////////////////////////////////////////////////////////
