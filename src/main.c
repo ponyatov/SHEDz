@@ -1,5 +1,5 @@
 //#define DBG
-#define REC_VERSION 88021052
+#define REC_VERSION 15071101
 #define DELAY_MINUTES 11
 
 // #define PRIO_SHIFT TIMESLOT
@@ -11,17 +11,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 struct TaskPoolRecord TaskPool [] = {
+  { .name = "Lection" },
+  { .name = "Math" },
   { .name = "CNC" },
-  { .name = "bI" },
-  { .name = "Swarm" },
-  { .name = "HS" },
-////  { .name = "VREP" },
-//  { .name = "bIlol" },
-//   { .name = "Pij2d" },
-//   { .name = "Pays" },
-// #ifndef DBG
-//   { .name = "Modula" },
-// #endif    
+  { .name = "RGBlink" },
+  { .name = "PyCAD" },
+  { .name = "PCB soft" },
+  { .name = "Lab77" },
+ { .name = "gym" },
 //  { .name = "SHED" },
   { .name = "e@mail" }
 };

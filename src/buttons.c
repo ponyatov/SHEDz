@@ -41,6 +41,6 @@ void WindowsClickConfigProvider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, click_DOWN);
   window_long_click_subscribe(BUTTON_ID_DOWN, 555, hold_DOWN,click_NULL);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_SELECT);
-  window_long_click_subscribe(BUTTON_ID_SELECT, 555, hold_SELECT,click_NULL);
+//  window_long_click_subscribe(BUTTON_ID_SELECT, 555, hold_SELECT,click_NULL);
   window_single_click_subscribe(BUTTON_ID_BACK, click_BACK);
 }
